@@ -1,7 +1,39 @@
-export function handler(event) {
-  const todoId = event.pathParameters.todoId
-  const updatedTodo = JSON.parse(event.body)
-  
-  // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
-  return undefined
-}
+import middy from '@middy/core'
+import cors from '@middy/http-cors'
+import httpErrorHandler from '@middy/http-error-handler'
+import { getTodos } from '../../businessLogic/todos.mjs'
+import { getUserId } from '../utils.mjs'
+import { createLogger } from '../../utils/logger.mjs'
+
+const logger = createLogger('createTodo');
+
+export const handler = middy()
+    .use(httpErrorHandler())
+    .use(
+        cors({
+            credentials: true
+        })
+    )
+    .handler(async(event) => {
+        // Write your logic here
+        logger.info('Processing GetTodos event...');
+
+        const userId = getUserId(event);
+        const todoId = event.pathParameters.todoId;
+        const updateData = JSON.parse(event.body);
+
+        try {
+            await updateTodo(userId, todoId, updateData);
+            logger.info('Successfully get all todo item.');
+            return {
+                statusCode: 200,
+                body: JSON.stringify({ todoList })
+            };
+        } catch (error) {
+            logger.error(`Error: ${error.message}`);
+            return {
+                statusCode: 500,
+                body: JSON.stringify({ error })
+            };
+        }
+    })
