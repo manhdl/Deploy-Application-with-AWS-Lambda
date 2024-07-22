@@ -1,7 +1,7 @@
 import middy from '@middy/core'
 import cors from '@middy/http-cors'
 import httpErrorHandler from '@middy/http-error-handler'
-import { getTodos } from '../../businessLogic/todos.mjs'
+import { getAllTodo } from '../../businessLogic/todos.mjs'
 import { getUserId } from '../utils.mjs'
 import { createLogger } from '../../utils/logger.mjs'
 
@@ -21,16 +21,26 @@ export const handler = middy()
         const userId = getUserId(event);
 
         try {
-            const todoList = await getTodos(userId);
+            const todoList = await getAllTodo(userId);
             logger.info('Successfully get all todo item.');
             return {
                 statusCode: 200,
-                body: JSON.stringify({ todoList })
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': true
+                },
+                body: JSON.stringify({
+                    'todos': todoList
+                })
             };
         } catch (error) {
             logger.error(`Error: ${error.message}`);
             return {
                 statusCode: 500,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': true
+                },
                 body: JSON.stringify({ error })
             };
         }

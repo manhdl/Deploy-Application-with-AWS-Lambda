@@ -1,93 +1,72 @@
-import * as AWS from 'aws-sdk'
-import * as AWSXRay from 'aws-xray-sdk'
-import { createLogger } from '../utils/logger.mjs';
+import { createLogger } from "../utils/logger.mjs";
+import { DynamoDB } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
 
-const XAWS = AWSXRay.captureAWS(AWS);
-const logger = createLogger('TodosAcess');
+const logger = createLogger("TodosAcess");
+const todosUserIndex = process.env.TODOS_USER_INDEX;
+const groupsTable = process.env.TODOS_TABLE;
+const dynamoDbDocument = DynamoDBDocument.from(new DynamoDB());
 
-export class TodoAcess {
-    contructor() {
-        this.docClient = createDynamoDBClient();
-        this.todosTable = process.env.TODOS_TABLE;
-        this.todosUserIndex = process.env.TODOS_USER_INDEX;
-    };
+export async function getAllTodoAsync(userId) {
+    logger.info("Get all todo function called");
 
-    async getTodos(userId) {
-        logger.info('Get all todo function called')
+    const result = await dynamoDbDocument.query({
+        TableName: groupsTable,
+        IndexName: todosUserIndex,
+        KeyConditionExpression: 'userId = :userId',
+        ExpressionAttributeValues: {
+            ':userId': userId,
+        },
+    });
 
-        const result = await docClient.quey({
-            TableName: todosTable,
-            IndexName: INDEX_NAME,
-            KeyConditionExpression: 'userId = : userId',
-            ExpresstionAttributeValues: {
-                ':userId': userId
-            }
-        }).promise();
+    return result.Items;
+}
 
-        return result.Items;
-    }
+export async function createTodoItem(todoItem) {
+    logger.info("Create todo item function calles");
 
-    async createTodoItem(todoItem) {
-        logger.info('Create todo item function calles');
+    await dynamoDbDocument.put({
+        TableName: groupsTable,
+        Item: todoItem,
+    });
 
-        await docClient.put({
-            TableName: todosTable,
-            Item: todoItem
-        }).promise();
+    return todoItem;
+}
 
-        return todoItem;
-    }
+export async function updateTodoItem(userId, todoId, updateData) {
+    logger.info(`
+        Updating a todo item: $ { todoId }
+        `);
 
-    async updateTodo(userId, todoId, updateData) {
-        logger.info(`Updating a todo item: ${todoId}`);
-        await this.docClient
-            .update({
-                TableName: this.todosTable,
-                Key: { userId, todoId },
-                ConditionExpression: 'attribute_exists(todoId)',
-                UpdateExpression: 'set #n = :n, dueDate = :due, done = :dn',
-                ExpressionAttributeNames: { '#n': 'name' },
-                ExpressionAttributeValues: {
-                    ':n': updateData.name,
-                    ':due': updateData.dueDate,
-                    ':dn': updateData.done
-                }
-            })
-            .promise();
-    }
+    await dynamoDbDocument.update({
+        TableName: groupsTable,
+        key: { userId, todoId },
+        UpdateExpression: "set #n = :n, dueDate = :due, done = :dn",
+        ExpressionAttributeNames: { "#n": "name" },
+        ExpressionAttributeValues: {
+            ":n": updateData.name,
+            ":due": updateData.dueDate,
+            ":dn": updateData.done,
+        },
+    });
+}
 
-    async deleteTodo(userId, todoId) {
-        await this.docClient
-            .delete({
-                TableName: this.todosTable,
-                Key: { userId, todoId }
-            })
-            .promise();
-    }
+export async function deleteTodoItem(userId, todoId) {
+    await dynamoDbDocument.delete({
+        TableName: groupsTable,
+        Key: { userId, todoId },
+    });
+}
 
-    async saveImgUrl(userId, todoId, bucketName) {
-        await this.docClient
-            .update({
-                TableName: this.todosTable,
-                Key: { userId, todoId },
-                ConditionExpression: 'attribute_exists(todoId)',
-                UpdateExpression: 'set attachmentUrl = :attachmentUrl',
-                ExpressionAttributeValues: {
-                    ':attachmentUrl': `https://${bucketName}.s3.amazonaws.com/${todoId}`
-                }
-            })
-            .promise();
-    }
-};
-
-function createDynamoDBClient() {
-    if (process.env.IS_OFFLINE) {
-        logger.info('Creating a local DynamoDB instance')
-        return new XAWS.DynamoDB.DocumentClient({
-            region: 'localhost',
-            endpoint: 'http://localhost:8005'
-        })
-    }
-
-    return new XAWS.DynamoDB.DocumentClient()
+export async function saveImgUrl(userId, todoId, bucketName) {
+    await dynamoDbDocument.update({
+        TableName: groupsTable,
+        Key: { userId, todoId },
+        ConditionExpression: "attribute_exists(todoId)",
+        UpdateExpression: "set attachmentUrl = :attachmentUrl",
+        ExpressionAttributeValues: {
+            ":attachmentUrl": `
+        https: //${bucketName}.s3.amazonaws.com/${todoId}`,
+        },
+    });
 }

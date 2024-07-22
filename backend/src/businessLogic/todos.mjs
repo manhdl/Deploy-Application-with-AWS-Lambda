@@ -1,22 +1,8 @@
 import * as uuid from "uuid";
-import { getUserId } from "../utils/getJwt";
-import {
-    getTodos,
-    getTodo,
-    createTodo,
-    updateTodo,
-    deleteTodo,
-    saveImgUrl,
-} from "../dataLayer/todoAccess";
+import { getAllTodoAsync, createTodoItem, updateTodoItem, deleteTodoItem, saveImgUrl } from "../dataLayer/todosAccess.mjs"
 
-const todoAccess = new TodoAccess();
-
-export async function getTodos(userId) {
-    return todoAccess.getTodos(userId);
-}
-
-export async function getTodo(userId, todoId) {
-    return todoAccess.getTodo(userId, todoId);
+export async function getAllTodo(userId) {
+    return await getAllTodoAsync(userId);
 }
 
 export async function createTodo(userId, newTodoData) {
@@ -24,15 +10,15 @@ export async function createTodo(userId, newTodoData) {
     const createdAt = new Date().toISOString();
     const done = false;
     const newTodo = { todoId, userId, createdAt, done, ...newTodoData };
-    return todoAccess.createTodo(newTodo);
+    return await createTodoItem(newTodo);
 }
 
 export async function updateTodo(userId, todoId, updateData) {
-    return todoAccess.updateTodo(userId, todoId, updateData);
+    return await updateTodoItem(userId, todoId, updateData);
 }
 
 export async function deleteTodo(userId, todoId) {
-    return todoAccess.deleteTodo(userId, todoId);
+    return await deleteTodoItem(userId, todoId);
 }
 
 export async function generateUploadUrl(userId, todoId) {
