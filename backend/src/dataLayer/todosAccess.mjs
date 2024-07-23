@@ -13,9 +13,9 @@ export async function getAllTodoAsync(userId) {
     const result = await dynamoDbDocument.query({
         TableName: groupsTable,
         IndexName: todosUserIndex,
-        KeyConditionExpression: 'userId = :userId',
+        KeyConditionExpression: "userId = :userId",
         ExpressionAttributeValues: {
-            ':userId': userId,
+            ":userId": userId,
         },
     });
 
@@ -34,13 +34,11 @@ export async function createTodoItem(todoItem) {
 }
 
 export async function updateTodoItem(userId, todoId, updateData) {
-    logger.info(`
-        Updating a todo item: $ { todoId }
-        `);
+    logger.info(`Updating a todo item: ${ todoId }`);
 
     await dynamoDbDocument.update({
         TableName: groupsTable,
-        key: { userId, todoId },
+        Key: { userId, todoId },
         UpdateExpression: "set #n = :n, dueDate = :due, done = :dn",
         ExpressionAttributeNames: { "#n": "name" },
         ExpressionAttributeValues: {
@@ -52,21 +50,9 @@ export async function updateTodoItem(userId, todoId, updateData) {
 }
 
 export async function deleteTodoItem(userId, todoId) {
+    logger.info(`Delete item: ${todoId}`);
     await dynamoDbDocument.delete({
         TableName: groupsTable,
         Key: { userId, todoId },
-    });
-}
-
-export async function saveImgUrl(userId, todoId, bucketName) {
-    await dynamoDbDocument.update({
-        TableName: groupsTable,
-        Key: { userId, todoId },
-        ConditionExpression: "attribute_exists(todoId)",
-        UpdateExpression: "set attachmentUrl = :attachmentUrl",
-        ExpressionAttributeValues: {
-            ":attachmentUrl": `
-        https: //${bucketName}.s3.amazonaws.com/${todoId}`,
-        },
     });
 }

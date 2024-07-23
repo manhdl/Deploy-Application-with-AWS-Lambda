@@ -1,5 +1,6 @@
 import * as uuid from "uuid";
-import { getAllTodoAsync, createTodoItem, updateTodoItem, deleteTodoItem, saveImgUrl } from "../dataLayer/todosAccess.mjs"
+import { getAllTodoAsync, createTodoItem, updateTodoItem, deleteTodoItem } from "../dataLayer/todosAccess.mjs"
+import { getUploadUrl, saveImgUrl } from '../fileStorage/attachmentUtils.mjs'
 
 export async function getAllTodo(userId) {
     return await getAllTodoAsync(userId);
@@ -22,14 +23,8 @@ export async function deleteTodo(userId, todoId) {
 }
 
 export async function generateUploadUrl(userId, todoId) {
-    const bucketName = process.env.IMAGES_S3_BUCKET;
-    const urlExpiration = parseInt(process.env.SIGNED_URL_EXPIRATION, 10);
-    const s3 = new AWS.S3({ signatureVersion: "v4" });
-    const signedUrl = s3.getSignedUrl("putObject", {
-        Bucket: bucketName,
-        Key: todoId,
-        Expires: urlExpiration,
-    });
-    await saveImgUrl(userId, todoId, bucketName);
-    return signedUrl;
+    var url = await getUploadUrl(todoId);
+    console.log(`url: ${url}`)
+    await saveImgUrl(userId, todoId);
+    return url;
 }

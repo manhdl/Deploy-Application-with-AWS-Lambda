@@ -5,7 +5,7 @@ import { generateUploadUrl } from '../../businessLogic/todos.mjs'
 import { getUserId } from '../utils.mjs'
 import { createLogger } from '../../utils/logger.mjs'
 
-const logger = createLogger('DeleteTodo');
+const logger = createLogger('generationUploadUrl');
 
 export const handler = middy()
     .use(httpErrorHandler())
@@ -26,7 +26,9 @@ export const handler = middy()
             logger.info('Successfully generate upload url.');
             return {
                 statusCode: 201,
-                body: JSON.stringify({ uploadUrl: signedUrl })
+                body: JSON.stringify({
+                    'uploadUrl': signedUrl
+                })
             };
         } catch (error) {
             logger.error(`Error: ${error.message}`);

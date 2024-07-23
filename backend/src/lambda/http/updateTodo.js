@@ -1,11 +1,11 @@
 import middy from '@middy/core'
 import cors from '@middy/http-cors'
 import httpErrorHandler from '@middy/http-error-handler'
-import { getTodos } from '../../businessLogic/todos.mjs'
+import { updateTodo } from '../../businessLogic/todos.mjs'
 import { getUserId } from '../utils.mjs'
 import { createLogger } from '../../utils/logger.mjs'
 
-const logger = createLogger('createTodo');
+const logger = createLogger('updateTodo');
 
 export const handler = middy()
     .use(httpErrorHandler())
@@ -26,8 +26,8 @@ export const handler = middy()
             await updateTodo(userId, todoId, updateData);
             logger.info('Successfully get all todo item.');
             return {
-                statusCode: 200,
-                body: JSON.stringify({ todoList })
+                statusCode: 204,
+                body: undefined
             };
         } catch (error) {
             logger.error(`Error: ${error.message}`);

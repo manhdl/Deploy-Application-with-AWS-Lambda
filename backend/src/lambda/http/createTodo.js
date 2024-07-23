@@ -26,7 +26,9 @@ export const handler = middy()
             logger.info('Successfully created a new todo item.');
             return {
                 statusCode: 201,
-                body: JSON.stringify({ newTodo })
+                body: JSON.stringify({
+                    'item': newTodo
+                })
             };
         } catch (error) {
             logger.error(`Error: ${error.message}`);

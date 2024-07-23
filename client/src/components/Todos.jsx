@@ -31,7 +31,7 @@ export function Todos() {
         {todos.map((todo, pos) => {
           return (
             <Grid.Row key={todo.todoId}>
-              <Grid.Column width={1} verticalAlign="middle">
+                <Grid.Column width={1} verticalAlign="middle">
                 <Checkbox
                   onChange={() => onTodoCheck(pos)}
                   checked={todo.done}
@@ -132,7 +132,7 @@ export function Todos() {
           scope: 'read:todos'
         })
         console.log('Access token: ' + accessToken)
-        const todos = await getTodos(accessToken)
+        const todos = await getTodos(accessToken)      
         setTodos(todos)
         setLoadingTodos(false)
       } catch (e) {
@@ -147,7 +147,7 @@ export function Todos() {
       <Header as="h1">TODOs</Header>
 
       <NewTodoInput onNewTodo={(newTodo) => setTodos([...todos, newTodo])} />
-
+        
       {renderTodos(loadingTodos, todos)}
     </div>
   )

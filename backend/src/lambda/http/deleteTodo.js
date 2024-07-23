@@ -22,7 +22,7 @@ export const handler = middy()
         const todoId = event.pathParameters.todoId;
 
         try {
-            await deleteTodo(todoId, userId);
+            await deleteTodo(userId, todoId);
             logger.info('Successfully deleted a todo item.');
             return {
                 statusCode: 204,
