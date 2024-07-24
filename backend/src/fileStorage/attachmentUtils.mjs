@@ -12,20 +12,20 @@ const dynamoDbDocument = DynamoDBDocument.from(new DynamoDB());
 const logger = createLogger("Attachment");
 
 export async function getUploadUrl(imageId) {
-    logger.info('getUploadUrl function is calling ')
-    logger.info(`bucket: ${s3BucketName}`)
+    logger.info("getUploadUrl function is calling ");
+    logger.info(`bucket: ${s3BucketName}`);
     const command = new PutObjectCommand({
         Bucket: s3BucketName,
-        Key: imageId
+        Key: imageId,
     });
 
     return await getSignedUrl(s3Client, command, {
-        expiresIn: urlExpiration
+        expiresIn: urlExpiration,
     });
 }
 
 export async function saveImgUrl(userId, todoId) {
-    logger.info('saveImgUrl function is calling ')
+    logger.info("saveImgUrl function is calling ");
     await dynamoDbDocument.update({
         TableName: groupsTable,
         Key: { userId, todoId },
@@ -33,6 +33,6 @@ export async function saveImgUrl(userId, todoId) {
         UpdateExpression: "set attachmentUrl = :attachmentUrl",
         ExpressionAttributeValues: {
             ":attachmentUrl": `https://${s3BucketName}.s3.amazonaws.com/${todoId}`,
-        }
+        },
     });
 }

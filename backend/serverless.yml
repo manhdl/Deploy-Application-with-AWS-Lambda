@@ -19,7 +19,7 @@ provider:
   environment:
     TODOS_TABLE: Todos-${self:provider.stage}
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
-    ATTACHMENT_S3_BUCKET: serverless-todo-images${self:provider.stage}
+    ATTACHMENT_S3_BUCKET: serverless-todo-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     PROJECT_NAME: serverless-todo-app
 
@@ -221,7 +221,4 @@ resources:
               Principal: '*'
               Action: 's3:GetObject'
               Resource: 'arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*'
-              Condition:
-                StringEquals:
-                  s3:ExistingObjectTag/public": 'yes'
         Bucket: !Ref AttachmentsBucket

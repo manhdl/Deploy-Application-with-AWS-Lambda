@@ -1,6 +1,11 @@
 import * as uuid from "uuid";
-import { getAllTodoAsync, createTodoItem, updateTodoItem, deleteTodoItem } from "../dataLayer/todosAccess.mjs"
-import { getUploadUrl, saveImgUrl } from '../fileStorage/attachmentUtils.mjs'
+import {
+    getAllTodoAsync,
+    createTodoItem,
+    updateTodoItem,
+    deleteTodoItem,
+} from "../dataLayer/todosAccess.mjs";
+import { getUploadUrl, saveImgUrl } from "../fileStorage/attachmentUtils.mjs";
 
 export async function getAllTodo(userId) {
     return await getAllTodoAsync(userId);
@@ -24,7 +29,7 @@ export async function deleteTodo(userId, todoId) {
 
 export async function generateUploadUrl(userId, todoId) {
     var url = await getUploadUrl(todoId);
-    console.log(`url: ${url}`)
+    console.log(`url: ${url}`);
     await saveImgUrl(userId, todoId);
     return url;
 }

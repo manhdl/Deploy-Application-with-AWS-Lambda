@@ -34,7 +34,7 @@ export async function createTodoItem(todoItem) {
 }
 
 export async function updateTodoItem(userId, todoId, updateData) {
-    logger.info(`Updating a todo item: ${ todoId }`);
+    logger.info(`Updating a todo item: ${todoId}`);
 
     await dynamoDbDocument.update({
         TableName: groupsTable,
